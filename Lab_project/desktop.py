@@ -1,10 +1,18 @@
 import PySimpleGUI as sg
 import cv2
 import numpy as np
+import requests
+import html
+import re
+from bs4 import BeautifulSoup
+import json
 
+
+
+    
 prototxt_path = 'voc/MobileNetSSD_deploy.prototxt'
 model_path = 'voc/MobileNetSSD_deploy.caffemodel'
-min_confidence = 0.2
+min_confidence = 0.3
 
 classes = ['background','aeroplane', 'bicycle', 'bird', 'boat',
            'bottle', 'bus', 'car', 'cat', 'chair',
@@ -25,11 +33,14 @@ def main():
     sg.theme('DarkBrown6')
     info = "lab_info: "
     filling = ""
+    info_1 = "sensors_info: "
+    sens = ""
     # define the window layout
     layout = [
-      [sg.Text('Image from 713', size=(60, 1), justification='center')],
+      [sg.Text('Image from 712', size=(60, 1), justification='center')],
       [sg.Image(filename='', key='-IMAGE-')],
       [sg.Text(info + filling, size=(90, 1), justification='center',key = '-UPDLAB-')],
+      [sg.Text(info_1 + sens, size=(120, 1), justification='center',key = '-UPDLAB-')],
       [sg.Radio('None', 'Radio', True, size=(10, 1))],
       [sg.Radio('blur', 'Radio', size=(10, 1), key='-BLUR-'),
        sg.Slider((1, 11), 1, 1, orientation='h', size=(40, 15), key='-BLUR SLIDER-')],
@@ -39,11 +50,16 @@ def main():
     ]
 
     window = sg.Window('Monitoring lab', layout, location=(800, 400))
-
-    cap = cv2.VideoCapture('rtsp://admin:admin@192.168.31.235:554/live1.sdp')
-
+    
+    cap = cv2.VideoCapture('rtsp://admin:GG322322@172.18.160.32:554/102')
+    #'rtsp://admin:GG322322@172.18.160.32:554/102'
+    #cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+    # поддерживает ли бэк
+    #print(cap.get(cv2.CAP_PROP_BUFFERSIZE))
+    # пинг буфера
+    #print(cv2.CAP_PROP_BUFFERSIZE)
     while True:
-        event, values = window.read(timeout=20)
+        event, values = window.read(timeout=0)
         if event == 'Exit' or event == sg.WIN_CLOSED:
             break
 
@@ -92,6 +108,12 @@ def main():
         for i in map_filling.keys():
             filling = filling + " " + str(i) + ": " + str(map_filling[i])
         imgbytes = cv2.imencode('.png', image)[1].tobytes()
+        """
+        try:
+            tg_ping.ping_alot_people(map_filling[classes[15]])
+        except:
+            pass
+        """
         window['-UPDLAB-'].update(info + filling)
         window['-IMAGE-'].update(data=imgbytes)
 
